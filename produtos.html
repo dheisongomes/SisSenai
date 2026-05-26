@@ -87,3 +87,20 @@
                     document.getElementById('lista-produtos');
 
                 produtos.forEach(p => {
+                    corpoTabela.innerHTML += `
+                        <tr>
+                            <td>${p.descricao}</td>
+                            <td>${p.preco.toFixed(2)}</td>
+                            <td>${p.estoque}</td>
+                        </tr>`;
+                });
+            });
+    </script>
+</body>
+<footer class="rodape">
+    <div class="container-rodape">
+        <p>&copy; 2026 SisSenai - Sistema de Gestão Educacional</p>
+        <p>Desenvolvido para fins didáticos - Unidade SENAI Capanema/PR</p>
+    </div>
+</footer>
+</html>
