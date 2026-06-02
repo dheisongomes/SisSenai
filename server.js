@@ -22,7 +22,7 @@ db.serialize(() => {
   )`);
 
   // --- Rotas de Clientes ---
-  app.post('/salvar-cliente',(req,res) => {
+  app.post('/salvar-cliente',(req, res) => {
     const {nome,cpf,telefone} = req.body;
     db.run(`INSERT INTO clientes (nome, cpf,telefone) VALUES (?, ?, ?)`,[nome, cpf, telefone], (err) => {
       res.redirect('/clientes.html');
