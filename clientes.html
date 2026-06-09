@@ -38,6 +38,7 @@
                         <th>Nome</th>
                         <th>CPF/CNPJ</th>
                         <th>Telefone</th>
+						<th>Ações</th><!-- Coluna de Ações adicionada-->
                     </tr>
                 </thead>
                 <tbody id="lista-clientes">
@@ -47,6 +48,8 @@
     </div>
 
     <script>
+		// Função para carregar os clientes e desenhar os botôes de ação
+		function carregarClientes() {
         fetch('/listar-clientes')
             .then(res => res.json())
             .then(clientes => {
@@ -58,8 +61,85 @@
                             <td>${c.cpf}</td>
                             <td>${c.telefone}</td>
                         </tr>`;
+					<td>
+						<button onclick="prepararEdicao(${c.id}, '${c.nome}', '${c.cpf}', '${c.telefone}')"
+								 style="width:auto; background:orange; padding:5px 10px; margin-right:5px;">✏️</button>
+				<button onclick="excluirClientes(${c.id})"
+				style="width:auto; background:red; padding:5px 10px;">🗑️</button>
+					</td>
+					</tr>`;
                 });
             });
+		}
+		// Lógica para Salvar (Novo ou Edição) | Acrescentar tudo
+document.getElementById('form-cliente').onsubmit = function(e) {
+    e.preventDefault();
+
+    const id = this.dataset.id; // Verifica se há um ID guardado para edição
+
+    const dados = {
+        nome: this.nome.value,
+        cpf: this.cpf.value,
+        telefone: this.telefone.value
+			};
+
+const url = id ? `/alterar-cliente/${id}` : '/salvar-cliente';
+const metodo = id ? 'PUT' : 'POST';
+
+fetch(url, {
+    method: metodo,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(dados)
+}).then(() => {
+    alert(id ? "Cliente alterado!" : "Cliente salvo!");
+    location.reload();
+});
+};
+
+// Função para Excluir | Acrescentar tudo
+function excluirCliente(id) {
+    if (confirm("Deseja excluir este cliente?")) {
+        fetch(`/excluir-cliente/${id}`, { method: 'DELETE' })
+            .then(() => carregarClientes());
+    }
+}
+
+// Função para colocar dados no form para Editar | Acrescentar tudo
+function prepararEdicao(id, nome, cpf, telefone) {
+    const form = document.getElementById('form-cliente');
+    form.dataset.id = id; // Guarda o ID no formulário
+    form.nome.value = nome;
+    form.cpf.value = cpf;
+    form.telefone.value = telefone;
+
+    document.getElementById('titulo-form').innerText = "Editar Cadastro";
+    const btn = document.getElementById('btn-salvar');
+    btn.innerText = "Confirmar Alteração";
+    btn.style.background = "orange";
+}
+
+carregarClientes();
+</script>
+	app.put('/alterar-cliente/:id', (req, res) => {
+    const { id } = req.params;
+    const { nome, cpf, telefone } = req.body;
+    const sql = `UPDATE clientes SET nome = ?, cpf = ?, telefone = ? WHERE id = ?`;
+
+    db.run(sql, [nome, cpf, telefone, id], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true });
+    });
+});
+	// *** NOVA ROTA: Excluir cliente *** | Acrescentar tudo
+app.delete('/excluir-cliente/:id', (req, res) => {
+    const { id } = req.params;
+
+    db.run('DELETE FROM clientes WHERE id = ?', [id], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+
+        res.json({ success: true });
+    });
+});
     </script>
 </body>
 <footer class="rodape">
